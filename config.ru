@@ -47,6 +47,6 @@ notifiers = [Racknga::ExceptionMailNotifier.new(notifier_options)]
 use Racknga::Middleware::ExceptionNotifier, :notifiers => notifiers
 
 map "/post-receiver/" do
-  run GitHubPostReceiver.new(options)
+  run GitHubWebHooksReceiver::App.new(options)
 end
 
