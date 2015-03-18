@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{GitHub web hook receiver}
   spec.description   = %q{GitHub web hook receiver}
   spec.homepage      = ""
-  spec.license       = "GPLv3 or later"
+  spec.license       = "GPL-3.0+"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
