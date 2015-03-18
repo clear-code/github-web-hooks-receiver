@@ -21,7 +21,7 @@ require "github-web-hooks-receiver/repository"
 
 module GitHubWebHooksReceiver
   class App < Base
-    include GitHubWebHooksReceiver::PathResolver
+    include PathResolver
 
     private
 
@@ -29,7 +29,7 @@ module GitHubWebHooksReceiver
       metadata = {
         "x-github-event" => github_event(request),
       }
-      payload = GitHubWebHooksReceiver::Payload.new(raw_payload, metadata)
+      payload = Payload.new(raw_payload, metadata)
       case payload.event_name
       when "ping"
         # Do nothing
@@ -210,7 +210,7 @@ module GitHubWebHooksReceiver
     end
 
     def repository_class
-      @options[:repository_class] || GitHubWebHooksReceiver::Repository
+      @options[:repository_class] || Repository
     end
 
     def repository_options(domain, owner_name, repository_name)
