@@ -186,7 +186,3 @@ $ sudo service apache2 restart
 You need to edit config.yaml to configure this web application.
 See config.yaml.example and test codes.
 
-## Add system hook
-
-See "Admin area" -> "Hooks".
-
