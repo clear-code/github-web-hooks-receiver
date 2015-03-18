@@ -22,12 +22,12 @@ require "uri"
 require "rubygems"
 require "json"
 
-require "web-hook-receiver-base"
+require "github-web-hooks-receiver/base"
 require "github-web-hooks-receiver/path-resolver"
 require "github-web-hooks-receiver/payload"
 require "github-web-hooks-receiver/repository"
 
-class GitHubPostReceiver < WebHookReceiverBase
+class GitHubPostReceiver < GitHubWebHooksReceiver::Base
 
   include GitHubWebHooksReceiver::PathResolver
 
