@@ -30,6 +30,6 @@ ARGV.unshift("--priority-mode")
 $LOAD_PATH.unshift(lib_dir)
 
 $LOAD_PATH.unshift(test_dir)
-require "github-post-receiver-test-utils"
+require "github-web-hooks-receiver-test-utils"
 
 exit Test::Unit::AutoRunner.run(true, test_dir)

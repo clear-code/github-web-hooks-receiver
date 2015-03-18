@@ -16,7 +16,7 @@
 require "yaml"
 
 class MultiSiteReceiverTest < Test::Unit::TestCase
-  include GitHubPostReceiverTestUtils
+  include GitHubWebHooksReceiverTestUtils
 
   def setup
     test_dir = File.dirname(__FILE__)

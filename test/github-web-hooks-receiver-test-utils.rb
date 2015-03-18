@@ -17,7 +17,7 @@ require "github-web-hooks-receiver"
 
 require "webrick/httpstatus"
 
-module GitHubPostReceiverTestUtils
+module GitHubWebHooksReceiverTestUtils
   include Capybara::DSL
 
   private

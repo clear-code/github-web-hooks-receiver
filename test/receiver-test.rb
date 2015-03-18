@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ReceiverTest < Test::Unit::TestCase
-  include GitHubPostReceiverTestUtils
+  include GitHubWebHooksReceiverTestUtils
 
   class << self
     def startup
