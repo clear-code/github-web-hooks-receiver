@@ -6,8 +6,8 @@ require 'github-web-hooks-receiver/version'
 Gem::Specification.new do |spec|
   spec.name          = "github-web-hooks-receiver"
   spec.version       = GitHubWebHooksReceiver::VERSION
-  spec.authors       = ["Ryo Onodera", "Kouhei Sutou", "Kenji Okimoto"]
-  spec.email         = ["onodera@clear-code.com", "kou@clear-code.com", "okimoto@clear-code.com"]
+  spec.authors       = ["Kouhei Sutou", "Kenji Okimoto"]
+  spec.email         = ["kou@clear-code.com", "okimoto@clear-code.com"]
   spec.summary       = %q{GitHub web hook receiver}
   spec.description   = %q{GitHub web hook receiver}
   spec.homepage      = ""
