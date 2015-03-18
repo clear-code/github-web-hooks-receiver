@@ -43,7 +43,7 @@ class ReceiverTest < Test::Unit::TestCase
   end
 
   def app
-    GitHubPostReceiver.new(options)
+    GitHubWebHooksReceiver::App.new(options)
   end
 
   def test_get

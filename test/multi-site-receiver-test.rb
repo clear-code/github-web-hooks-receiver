@@ -36,7 +36,7 @@ class MultiSiteReceiverTest < Test::Unit::TestCase
     options[:fixtures_dir] = @fixtures_dir
     options[:commit_email] = File.join(@fixtures_dir, "mock-commit-email.rb")
     options[:git] = File.join(@fixtures_dir, "stub-git.rb")
-    GitHubPostReceiver.new(options)
+    GitHubWebHooksReceiver::App.new(options)
   end
 
   class GitHubTest < self

@@ -24,7 +24,7 @@ class ReceiverConfigTest < Test::Unit::TestCase
   def setup
     fixtures_dir = File.expand_path(File.join(File.dirname(__FILE__), "fixtures"))
     options = YAML.load_file(File.join(fixtures_dir, "config-multi-site.yaml"))
-    @receiver = GitHubPostReceiver.new(options)
+    @receiver = GitHubWebHooksReceiver::App.new(options)
   end
 
   data("github.com/clear-code/git-utils" => {
