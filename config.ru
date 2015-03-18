@@ -28,7 +28,7 @@ racknga_lib_dir = racknga_base_dir + "lib"
 $LOAD_PATH.unshift(racknga_lib_dir.to_s)
 $LOAD_PATH.unshift(lib_dir.to_s)
 
-require "github-post-receiver"
+require "github-web-hooks-receiver"
 
 require "racknga/middleware/exception_notifier"
 

@@ -18,7 +18,7 @@
 require "test-unit"
 require "yaml"
 
-require "github-post-receiver"
+require "github-web-hooks-receiver"
 
 class ReceiverConfigTest < Test::Unit::TestCase
   def setup
