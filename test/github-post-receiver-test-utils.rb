@@ -37,7 +37,7 @@ module GitHubPostReceiverTestUtils
     end
   end
 
-  class LocalRepository < GitHubPostReceiver::Repository
+  class LocalRepository < GitHubWebHooksReceiver::Repository
     private
     def fixtures_dir
       @options[:fixtures_dir]
