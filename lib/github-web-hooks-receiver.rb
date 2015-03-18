@@ -23,21 +23,11 @@ require "rubygems"
 require "json"
 
 require "web-hook-receiver-base"
+require "github-web-hooks-receiver/path-resolver"
 
 class GitHubPostReceiver < WebHookReceiverBase
-  module PathResolver
-    def base_dir
-      @base_dir ||=
-        @options[:base_dir] ||
-        File.expand_path(File.join(File.dirname(__FILE__), ".."))
-    end
 
-    def path(*paths)
-      File.expand_path(File.join(base_dir, *paths))
-    end
-  end
-
-  include PathResolver
+  include GitHubWebHooksReceiver::PathResolver
 
   private
 
@@ -253,7 +243,7 @@ class GitHubPostReceiver < WebHookReceiverBase
   end
 
   class Repository
-    include PathResolver
+    include GitHubWebHooksReceiver::PathResolver
 
     class Error < StandardError
     end
