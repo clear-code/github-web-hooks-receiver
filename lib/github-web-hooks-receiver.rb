@@ -24,6 +24,7 @@ require "json"
 
 require "web-hook-receiver-base"
 require "github-web-hooks-receiver/path-resolver"
+require "github-web-hooks-receiver/payload"
 
 class GitHubPostReceiver < WebHookReceiverBase
 
@@ -35,7 +36,7 @@ class GitHubPostReceiver < WebHookReceiverBase
     metadata = {
       "x-github-event" => github_event(request),
     }
-    payload = Payload.new(raw_payload, metadata)
+    payload = GitHubWebHooksReceiver::Payload.new(raw_payload, metadata)
     case payload.event_name
     when "ping"
       # Do nothing
@@ -417,44 +418,6 @@ class GitHubPostReceiver < WebHookReceiverBase
     end
   end
 
-  class Payload
-    def initialize(data, metadata={})
-      @data = data
-      @metadata = metadata
-    end
-
-    def [](key)
-      key.split(".").inject(@data) do |current_data, current_key|
-        if current_data
-          current_data[current_key]
-        else
-          nil
-        end
-      end
-    end
-
-    def repository_url
-      if gitlab?
-        self["repository.url"]
-      elsif github_gollum?
-        self["repository.clone_url"].gsub(/(\.git)\z/, ".wiki\\1")
-      else
-        self["repository.clone_url"] || "#{self['repository.url']}.git"
-      end
-    end
-
-    def gitlab?
-      not self["user_name"].nil?
-    end
-
-    def github_gollum?
-      event_name == "gollum"
-    end
-
-    def event_name
-      @metadata["x-github-event"]
-    end
-  end
 end
 
 module GitHubWebHooksReceiver
