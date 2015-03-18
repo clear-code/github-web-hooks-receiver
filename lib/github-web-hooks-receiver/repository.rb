@@ -16,7 +16,7 @@
 
 module GitHubWebHooksReceiver
   class Repository
-    include GitHubWebHooksReceiver::PathResolver
+    include PathResolver
 
     class Error < StandardError
     end
