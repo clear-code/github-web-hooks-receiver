@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/clear-code/github-web-hooks-receiver.svg?branch=master)](https://travis-ci.org/clear-code/github-web-hooks-receiver)
+
 # GitHub Web hooks receiver
 
 This is a Rack based web application that can process POST request from GitHub, GitLab and GHE.
