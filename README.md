@@ -2,29 +2,64 @@
 
 This is a Rack based web application that can process POST request from GitHub, GitLab and GHE.
 
-## Set up (Nginx + Unicorn)
-
-Clone repository.
-
-```
-$ cd ~git-utils
-$ sudo -u git-utils -H git clone https://github.com/clear-code/git-utils.git
-```
+## Set up
 
 Prepare following files.
 
-/etc/nginx/sites-enabled/git-utils:
+/home/github-web-hooks-receiver/github-web-hooks-receiver/Gemfile:
 ```
-upstream git-utils {
-    server unix:/tmp/unicorn-git-utils.sock;
+source "https://rubygems.org"
+gem "github-web-hooks-receiver"
+# gem "unicorn"   # Enable this line if you use Unicorn.
+# gem "passenger" # Enable this line if you use latest Passenger.
+```
+
+/home/github-web-hooks-receiver/github-web-hooks-receiver/config.ru:
+```ruby
+require "yaml"
+require "pathname"
+require "github-web-hooks-receiver"
+
+use Rack::CommonLogger
+use Rack::Runtime
+use Rack::ContentLength
+
+base_dir = Pathname(__FILE__).dirname
+config_file = base_dir + "config.yaml"
+
+options = YAML.load_file(config_file.to_s)
+
+map "/post-receiver/" do
+  run GitHubWebHooksReceiver::App.new(options)
+end
+```
+
+/home/github-web-hooks-receiver/github-web-hooks-receiver/config.yaml:
+```
+to: receiver@example.com
+sender: sender@example.com
+add_html: true
+owners:
+  groonga:
+    to: groonga-commit@lists.sourceforge.jp
+```
+
+### Nginx + Unicorn
+
+Prepare following files.
+
+/etc/nginx/sites-enabled/github-web-hooks-receiver:
+```
+upstream github-web-hooks-receiver {
+    server unix:/tmp/unicorn-github-web-hooks-receiver.sock;
 }
 
 server {
     listen 80;
-    server_name git-utils.example.com;
-    access_log /var/log/nginx/git-utils.example.com-access.log combined;
+    server_name github-web-hooks-receiver.example.com;
+    access_log /var/log/nginx/github-web-hooks-receiver.example.com-access.log combined;
 
-    root /srv/www/git-utils;
+    root /srv/www/github-web-hooks-receiver;
     index index.html;
 
     proxy_set_header X-Real-IP $remote_addr;
@@ -33,46 +68,37 @@ server {
     #proxy_redirect off;
 
     location / {
-        root /home/git-utils/git-utils/github-post-receiver/public;
+        root /home/github-web-hooks-receiver/github-web-hooks-receiver/public;
         include maintenance;
         if (-f $request_filename){
             break;
         }
         if (!-f $request_filename){
-            proxy_pass http://git-utils;
+            proxy_pass http://github-web-hooks-receiver;
             break;
         }
     }
 }
 ```
 
-/home/git-utils/git-utils/github-post-receiver/unicorn.conf:
+/home/github-web-hooks-receiver/github-web-hooks-receiver/unicorn.conf:
 ```
 # -*- ruby -*-
 worker_processes 2
-working_directory "/home/git-utils/git-utils/github-post-receiver"
+working_directory "/home/github-web-hooks-receiver/github-web-hooks-receiver"
 listen '/tmp/unicorn-github-post-receiver.sock', :backlog => 1
 timeout 120
 pid 'tmp/pids/unicorn.pid'
 preload_app true
 stderr_path 'log/unicorn.log'
 stdout_path "log/stdout.log"
-user "git-utils", "git-utils"
+user "github-web-hooks-receiver", "github-web-hooks-receiver"
 ```
 
-/home/git-utils/git-utils/github-post-receiver/Gemfile:
-```
-source "https://rubygems.org"
-
-gem "rack"
-gem "unicorn"
-gem "racknga"
-```
-
-/home/git-utils/bin/github-post-receiver:
+/home/github-web-hooks-receiver/bin/github-web-hooks-receiver:
 ```
 #! /bin/zsh
-BASE_DIR=/home/git-utils/git-utils/github-post-receiver
+BASE_DIR=/home/github-web-hooks-receiver/github-web-hooks-receiver
 export RACK_ENV=production
 cd  $BASE_DIR
 rbenv version
@@ -99,33 +125,25 @@ $command
 Install gems.
 
 ```
-$ sudo -u git-utils -H bundle install --path vendor/bundle
+$ sudo -u github-web-hooks-receiver -H bundle install --path vendor/bundle
 ```
 
 Run the application.
 
 ```
-$ sudo -u git-utils -H ~git-utils/bin/github-post-receiver start
+$ sudo -u github-web-hooks-receiver -H ~github-web-hooks-receiver/bin/github-web-hooks-receiver start
 ```
 
-## Set up (Apache + Passenger)
+### Apache + Passenger
 
 On Debian GNU/Linux wheezy.
 
 See also [Phusion Passenger users guide, Apache version](https://www.phusionpassenger.com/documentation/Users%20guide%20Apache.html).
 
-Clone repository.
+Install Passenger or write `gem "passenger"` in your Gemfile.
 
 ```
-$ cd ~git-utils
-$ sudo -u git-utils -H git clone https://github.com/clear-code/git-utils.git
-```
-
-Install Passenger.
-Following command can display configurations for your environment.
-
-```
-$ sudo gem install passenger
+$ sudo apt-get install -y ruby-passenger
 ```
 
 Prepare following files.
@@ -143,18 +161,18 @@ PassengerMaxRequests 100
 LoadModule passenger_module /path/to/mod_passenger.so
 ```
 
-/etc/apache2/sites-available/git-utils:
+/etc/apache2/sites-available/github-web-hooks-receiver:
 ```
 <VirtualHost *:80>
-  ServerName git-utils.example.com
-  DocumentRoot /home/git-utils/git-utils/github-post-receiver/public
-  <Directory /home/git-utils/git-utils/github-post-receiver/public>
+  ServerName github-web-hooks-receiver.example.com
+  DocumentRoot /home/github-web-hooks-receiver/github-web-hooks-receiver/public
+  <Directory /home/github-web-hooks-receiver/github-web-hooks-receiver/public>
      AllowOverride all
      Options -MultiViews
   </Directory>
 
-  ErrorLog ${APACHE_LOG_DIR}/git-utils_error.log
-  CustomLog ${APACHE_LOG_DIR}/git-utils_access.log combined
+  ErrorLog ${APACHE_LOG_DIR}/github-web-hooks-receiver_error.log
+  CustomLog ${APACHE_LOG_DIR}/github-web-hooks-receiver_access.log combined
 
   AllowEncodedSlashes On
   AcceptPathInfo On
@@ -170,7 +188,7 @@ $ sudo a2enmod passenger
 Enable the virtual host.
 
 ```
-$ sudo a2ensite git-utils
+$ sudo a2ensite github-web-hooks-receiver
 ```
 
 Restart web server.
