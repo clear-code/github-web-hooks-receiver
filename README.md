@@ -44,6 +44,75 @@ owners:
     to: groonga-commit@lists.sourceforge.jp
 ```
 
+### Apache + Passenger
+
+On Debian GNU/Linux wheezy.
+
+See also [Phusion Passenger users guide, Apache version](https://www.phusionpassenger.com/documentation/Users%20guide%20Apache.html).
+
+Install Passenger or write `gem "passenger"` in your Gemfile.
+
+```
+$ sudo apt-get install -y ruby-passenger
+```
+
+Install gems.
+
+```
+$ sudo -u github-web-hooks-receiver -H bundle install --path vendor/bundle
+```
+
+Prepare following files.
+
+/etc/apache2/mods-available.conf:
+```
+PassengerRoot /path/to/passenger-x.x.x
+PassengerRuby /path/to/ruby
+
+PassengerMaxRequests 100
+```
+
+/etc/apache2/mods-available.load:
+```
+LoadModule passenger_module /path/to/mod_passenger.so
+```
+
+/etc/apache2/sites-available/github-web-hooks-receiver:
+```
+<VirtualHost *:80>
+  ServerName github-web-hooks-receiver.example.com
+  DocumentRoot /home/github-web-hooks-receiver/github-web-hooks-receiver/public
+  <Directory /home/github-web-hooks-receiver/github-web-hooks-receiver/public>
+     AllowOverride all
+     Options -MultiViews
+  </Directory>
+
+  ErrorLog ${APACHE_LOG_DIR}/github-web-hooks-receiver_error.log
+  CustomLog ${APACHE_LOG_DIR}/github-web-hooks-receiver_access.log combined
+
+  AllowEncodedSlashes On
+  AcceptPathInfo On
+</VirtualHost>
+```
+
+Enable the module.
+
+```
+$ sudo a2enmod passenger
+```
+
+Enable the virtual host.
+
+```
+$ sudo a2ensite github-web-hooks-receiver
+```
+
+Restart web server.
+
+```
+$ sudo service apache2 restart
+```
+
 ### Nginx + Unicorn
 
 Prepare following files.
@@ -132,69 +201,6 @@ Run the application.
 
 ```
 $ sudo -u github-web-hooks-receiver -H ~github-web-hooks-receiver/bin/github-web-hooks-receiver start
-```
-
-### Apache + Passenger
-
-On Debian GNU/Linux wheezy.
-
-See also [Phusion Passenger users guide, Apache version](https://www.phusionpassenger.com/documentation/Users%20guide%20Apache.html).
-
-Install Passenger or write `gem "passenger"` in your Gemfile.
-
-```
-$ sudo apt-get install -y ruby-passenger
-```
-
-Prepare following files.
-
-/etc/apache2/mods-available.conf:
-```
-PassengerRoot /path/to/passenger-x.x.x
-PassengerRuby /path/to/ruby
-
-PassengerMaxRequests 100
-```
-
-/etc/apache2/mods-available.load:
-```
-LoadModule passenger_module /path/to/mod_passenger.so
-```
-
-/etc/apache2/sites-available/github-web-hooks-receiver:
-```
-<VirtualHost *:80>
-  ServerName github-web-hooks-receiver.example.com
-  DocumentRoot /home/github-web-hooks-receiver/github-web-hooks-receiver/public
-  <Directory /home/github-web-hooks-receiver/github-web-hooks-receiver/public>
-     AllowOverride all
-     Options -MultiViews
-  </Directory>
-
-  ErrorLog ${APACHE_LOG_DIR}/github-web-hooks-receiver_error.log
-  CustomLog ${APACHE_LOG_DIR}/github-web-hooks-receiver_access.log combined
-
-  AllowEncodedSlashes On
-  AcceptPathInfo On
-</VirtualHost>
-```
-
-Enable the module.
-
-```
-$ sudo a2enmod passenger
-```
-
-Enable the virtual host.
-
-```
-$ sudo a2ensite github-web-hooks-receiver
-```
-
-Restart web server.
-
-```
-$ sudo service apache2 restart
 ```
 
 ## Configuration
