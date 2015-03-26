@@ -211,4 +211,3 @@ $ sudo -u github-web-hooks-receiver -H ~github-web-hooks-receiver/bin/github-web
 
 You need to edit config.yaml to configure this web application.
 See config.yaml.example and test codes.
-
