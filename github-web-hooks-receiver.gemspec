@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["kou@clear-code.com", "okimoto@clear-code.com"]
   spec.summary       = %q{GitHub web hook receiver}
   spec.description   = %q{GitHub web hook receiver}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/clear-code/github-web-hooks-receiver"
   spec.license       = "GPL-3.0+"
 
   spec.files         = `git ls-files -z`.split("\x0")
