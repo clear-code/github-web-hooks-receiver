@@ -38,6 +38,8 @@ end
 
 /home/github-web-hooks-receiver/github-web-hooks-receiver/config.yaml:
 ```
+mirrors_directory: /path/to/mirrors
+commit_email: /path/to/git-commit-mailer
 to: receiver@example.com
 sender: sender@example.com
 add_html: true
