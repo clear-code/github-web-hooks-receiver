@@ -21,7 +21,7 @@ module GitHubWebHooksReceiver
     def base_dir
       @base_dir ||=
         @options[:base_dir] ||
-        File.expand_path(File.join(File.dirname(__FILE__), ".."))
+        File.expand_path(File.join(File.dirname(__FILE__), "..", ".."))
     end
 
     def path(*paths)
