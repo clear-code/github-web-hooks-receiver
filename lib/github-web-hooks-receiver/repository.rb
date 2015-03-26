@@ -92,7 +92,7 @@ module GitHubWebHooksReceiver
       else
         options << @to
       end
-      command_line = [ruby, commit_email, *options].collect do |component|
+      command_line = [ruby, git_commit_mailer, *options].collect do |component|
         Shellwords.escape(component)
       end.join(" ")
       change = "#{before} #{after} #{reference}"
@@ -142,6 +142,10 @@ module GitHubWebHooksReceiver
       @commit_email ||=
         @options[:commit_email] ||
         path("..", "commit-email.rb")
+    end
+
+    def git_commit_mailer
+      @git_commit_mailer ||= @options[:git_commit_mailer] || commit_email
     end
 
     def from
