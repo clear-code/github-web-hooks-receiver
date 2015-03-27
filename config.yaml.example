@@ -12,3 +12,24 @@ owners:
         to: null@example.com
   groonga:
     to: groonga-commit@lists.sourceforge.jp
+
+# For multiple domains
+#
+# domains:
+#   github.com: &github
+#     owners:
+#       clear-code:
+#         to: commit+clear-code@example.com
+#   # GitHub uses api.github.com for gollum event (Wiki change event)
+#   # "api.github.com: *github" means that api.github.com configuaration
+#   # is the same as github.com.
+#   api.github.com: *github
+#   gitlab.example.com:
+#     to: commit+gitlab@example.com
+#     from: null+gitlab@example.com
+#     owners:
+#       owner1:
+#         repositories:
+#           repository1:
+#             to:
+#               - commit+repository1@example.com
