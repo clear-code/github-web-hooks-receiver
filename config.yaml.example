@@ -11,8 +11,8 @@ exception_notifier:
 sender: sender@example.com
 add_html: true
 owners:
-  ranguba:
-    to: groonga-commit@rubyforge.org
+  mroonga:
+    to: groonga-mysql-commit@lists.sourceforge.jp
     repositories:
       examples:
         to: null@example.com
