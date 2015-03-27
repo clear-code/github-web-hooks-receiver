@@ -116,16 +116,14 @@ module GitHubWebHooksReceiver
     end
 
     def extract_domain(repository_uri)
-      domain = nil
       case repository_uri
       when /\Agit@/
-        domain = repository_uri[/@(.+):/, 1]
+        repository_uri[/@(.+):/, 1]
       when /\Ahttps:\/\//
-        domain = URI.parse(repository_uri).hostname
+        URI.parse(repository_uri).hostname
       else
-        return
+        nil
       end
-      domain
     end
 
     def extract_owner_name(repository_uri, payload)
