@@ -42,19 +42,19 @@ module GitHubWebHooksReceiver
       FileUtils.mkdir_p(mirrors_directory)
       n_retries = 0
       lock("#{mirror_path}.lock") do
-      begin
-        if File.exist?(mirror_path)
-          git("--git-dir", mirror_path, "fetch", "--quiet")
-        else
-          git("clone", "--quiet",
-              "--mirror", @payload.repository_url,
-              mirror_path)
+        begin
+          if File.exist?(mirror_path)
+            git("--git-dir", mirror_path, "fetch", "--quiet")
+          else
+            git("clone", "--quiet",
+                "--mirror", @payload.repository_url,
+                mirror_path)
+          end
+        rescue Error
+          n_retries += 1
+          retry if n_retries <= @max_n_retries
+          raise
         end
-      rescue Error
-        n_retries += 1
-        retry if n_retries <= @max_n_retries
-        raise
-      end
       end
       send_commit_email(before, after, reference)
     end
