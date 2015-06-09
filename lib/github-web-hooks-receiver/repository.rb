@@ -41,6 +41,7 @@ module GitHubWebHooksReceiver
     def process(before, after, reference)
       FileUtils.mkdir_p(mirrors_directory)
       n_retries = 0
+      lock("#{mirror_path}.lock") do
       begin
         if File.exist?(mirror_path)
           git("--git-dir", mirror_path, "fetch", "--quiet")
@@ -54,7 +55,15 @@ module GitHubWebHooksReceiver
         retry if n_retries <= @max_n_retries
         raise
       end
+      end
       send_commit_email(before, after, reference)
+    end
+
+    def lock(path)
+      File.open(path, "w") do |file|
+        file.flock(File::LOCK_EX)
+        yield
+      end
     end
 
     def send_commit_email(before, after, reference)
