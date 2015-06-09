@@ -39,7 +39,7 @@ module GitHubWebHooksReceiver
     end
 
     def process(before, after, reference)
-      FileUtils.mkdir_p(mirrors_directory)
+      FileUtils.mkdir_p(File.dirname(mirror_path))
       n_retries = 0
       lock("#{mirror_path}.lock") do
         begin
