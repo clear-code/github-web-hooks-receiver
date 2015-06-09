@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2010-2015  Kouhei Sutou <kou@clear-code.com>
 # Copyright (C) 2015  Kenji Okimoto <okimoto@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -13,6 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+require "stringio"
 
 module GitHubWebHooksReceiver
   class Repository
@@ -105,12 +107,16 @@ module GitHubWebHooksReceiver
         Shellwords.escape(component)
       end.join(" ")
       change = "#{before} #{after} #{reference}"
-      IO.popen(command_line, "w") do |io|
-        io.puts(change)
+      status = nil
+      output = capture_output do
+        IO.popen(command_line, "w") do |io|
+          io.puts(change)
+        end
+        status = $?
       end
-      unless $?.success?
+      unless status.success?
         raise Error.new("failed to run git-commit-mailer: " +
-                        "<#{command_line}>:<#{change}>")
+                        "<#{command_line}>:<#{change}>:<#{output}>")
       end
     end
 
@@ -200,6 +206,21 @@ module GitHubWebHooksReceiver
       value = value.to_s
       return if value.empty?
       options.concat([name, value])
+    end
+
+    def capture_output
+      output = StringIO.new
+      stdout = $stdout
+      stderr = $stderr
+      begin
+        $stdout = output
+        $stderr = output
+        yield
+      ensure
+        $stdout = stdout
+        $stderr = stderr
+      end
+      output.string
     end
   end
 end
