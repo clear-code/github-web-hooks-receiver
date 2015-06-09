@@ -109,7 +109,7 @@ module GitHubWebHooksReceiver
         io.puts(change)
       end
       unless $?.success?
-        raise Error.new("failed to run commit-email.rb: " +
+        raise Error.new("failed to run git-commit-mailer: " +
                         "<#{command_line}>:<#{change}>")
       end
     end
