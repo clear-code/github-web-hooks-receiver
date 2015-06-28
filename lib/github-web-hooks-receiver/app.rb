@@ -183,6 +183,7 @@ module GitHubWebHooksReceiver
       if pages.empty?
         set_error_response(response, :bad_request,
                            "no pages")
+        return
       end
 
       revisions = pages.collect do |page|
