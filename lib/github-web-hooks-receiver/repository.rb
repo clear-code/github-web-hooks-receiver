@@ -34,10 +34,8 @@ module GitHubWebHooksReceiver
       raise Error.new("mail receive address is missing: <#{@name}>") if @to.nil?
     end
 
-    def target?
-      (@options[:targets] || [/\A[a-z\d_.\-]+\z/i]).any? do |target|
-        target === @name
-      end
+    def enabled?
+      @options[:enabled] != false
     end
 
     def process(before, after, reference)
