@@ -38,9 +38,9 @@ module GitHubWebHooksReceiver
       when "gollum"
         process_gollum_payload(request, response, payload)
       else
-        set_error_response(response,
-                           :bad_request,
-                           "Unsupported event: <#{payload.event_name}>")
+        set_response(response,
+                     :bad_request,
+                     "Unsupported event: <#{payload.event_name}>")
       end
     end
 
@@ -67,46 +67,46 @@ module GitHubWebHooksReceiver
     def process_payload_repository(request, response, payload)
       repository = payload["repository"]
       if repository.nil?
-        set_error_response(response, :bad_request,
-                           "repository information is missing")
+        set_response(response, :bad_request,
+                     "repository information is missing")
         return
       end
 
       unless repository.is_a?(Hash)
-        set_error_response(response, :bad_request,
-                           "invalid repository information format: " +
-                           "<#{repository.inspect}>")
+        set_response(response, :bad_request,
+                     "invalid repository information format: " +
+                     "<#{repository.inspect}>")
         return
       end
 
       repository_uri = repository["url"]
       domain = extract_domain(repository_uri)
       if domain.nil?
-        set_error_response(response, :bad_request,
-                           "invalid repository URI: <#{repository.inspect}>")
+        set_response(response, :bad_request,
+                     "invalid repository URI: <#{repository.inspect}>")
         return
       end
 
       repository_name = repository["name"]
       if repository_name.nil?
-        set_error_response(response, :bad_request,
-                           "repository name is missing: <#{repository.inspect}>")
+        set_response(response, :bad_request,
+                     "repository name is missing: <#{repository.inspect}>")
         return
       end
 
       owner_name = extract_owner_name(repository_uri, payload)
       if owner_name.nil?
-        set_error_response(response, :bad_request,
-                           "repository owner or owner name is missing: " +
-                           "<#{repository.inspect}>")
+        set_response(response, :bad_request,
+                     "repository owner or owner name is missing: " +
+                     "<#{repository.inspect}>")
         return
       end
 
       options = repository_options(domain, owner_name, repository_name)
       repository = repository_class.new(domain, owner_name, repository_name,
                                         payload, options)
-      unless repository.target?
-        set_error_response(response, :forbidden,
+      unless repository.enabled?
+        set_response(response, :forbidden,
                            "unacceptable repository: " +
                            "<#{owner_name.inspect}>:<#{repository_name.inspect}>")
         return
@@ -151,22 +151,22 @@ module GitHubWebHooksReceiver
     def process_push_parameters(request, response, payload)
       before = payload["before"]
       if before.nil?
-        set_error_response(response, :bad_request,
-                           "before commit ID is missing")
+        set_response(response, :bad_request,
+                     "before commit ID is missing")
         return
       end
 
       after = payload["after"]
       if after.nil?
-        set_error_response(response, :bad_request,
-                           "after commit ID is missing")
+        set_response(response, :bad_request,
+                     "after commit ID is missing")
         return
       end
 
       reference = payload["ref"]
       if reference.nil?
-        set_error_response(response, :bad_request,
-                           "reference is missing")
+        set_response(response, :bad_request,
+                     "reference is missing")
         return
       end
 
@@ -176,13 +176,13 @@ module GitHubWebHooksReceiver
     def process_gollum_parameters(request, response, payload)
       pages = payload["pages"]
       if pages.nil?
-        set_error_response(response, :bad_request,
-                           "pages are missing")
+        set_response(response, :bad_request,
+                     "pages are missing")
         return
       end
       if pages.empty?
-        set_error_response(response, :bad_request,
-                           "no pages")
+        set_response(response, :bad_request,
+                     "no pages")
         return
       end
 
@@ -202,7 +202,7 @@ module GitHubWebHooksReceiver
       [before, after, reference]
     end
 
-    def set_error_response(response, status_keyword, message)
+    def set_response(response, status_keyword, message)
       response.status = status(status_keyword)
       response["Content-Type"] = "text/plain"
       response.write(message)
