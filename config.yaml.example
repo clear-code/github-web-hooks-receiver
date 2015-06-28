@@ -20,6 +20,11 @@ owners:
 #     owners:
 #       clear-code:
 #         to: commit+clear-code@example.com
+#       kou:
+#         enabled: false # Disabled by default
+#         repositories:
+#           mruby-pp:
+#             enabled: true # Enabled only the specified repository
 #   # GitHub uses api.github.com for gollum event (Wiki change event)
 #   # "api.github.com: *github" means that api.github.com configuaration
 #   # is the same as github.com.
