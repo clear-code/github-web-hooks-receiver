@@ -102,8 +102,8 @@ class ReceiverTest < Test::Unit::TestCase
                        :name => owner_name,
                      },
                    })
-      assert_response("Forbidden")
-      assert_equal("unacceptable repository: " +
+      assert_response("Accepted")
+      assert_equal("ignore disabled repository: " +
                    "<#{owner_name.inspect}>:<#{repository_name.inspect}>",
                    body)
     end
@@ -225,6 +225,7 @@ class ReceiverTest < Test::Unit::TestCase
       assert_false(File.exist?(repository_mirror_path))
       options[:owners] = {
         "ranguba" => {
+          :enabled => true,
           :to => "ranguba-commit@example.org",
           :from => "ranguba+commit@example.org",
           :sender => "null@example.org",
@@ -272,6 +273,7 @@ class ReceiverTest < Test::Unit::TestCase
           :sender => "null@example.org",
           "repositories" => {
             "rroonga" => {
+              :enabled => true,
               :to => "ranguba-commit@example.net",
               :from => "ranguba+commit@example.net",
               :sender => "null@example.net",
@@ -371,12 +373,17 @@ class ReceiverTest < Test::Unit::TestCase
 
   def options
     @options ||= {
-      :targets => ["rroonga"],
+      :enabled => false,
       :base_dir => @tmp_dir,
       :fixtures_dir => @fixtures_dir,
       :repository_class => LocalRepository,
       :commit_email => File.join(@fixtures_dir, "mock-commit-email.rb"),
       :to => "null@example.com",
+      :owners => {
+        "ranguba" => {
+          :enabled => true,
+        },
+      },
     }
   end
 
