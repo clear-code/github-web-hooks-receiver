@@ -35,7 +35,9 @@ module GitHubWebHooksReceiver
     end
 
     def enabled?
-      @options[:enabled] != false
+      enabled = @options[:enabled]
+      enabled = true if enabled.nil?
+      enabled
     end
 
     def process(before, after, reference)
