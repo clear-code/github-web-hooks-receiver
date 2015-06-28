@@ -106,9 +106,9 @@ module GitHubWebHooksReceiver
       repository = repository_class.new(domain, owner_name, repository_name,
                                         payload, options)
       unless repository.enabled?
-        set_response(response, :forbidden,
-                           "unacceptable repository: " +
-                           "<#{owner_name.inspect}>:<#{repository_name.inspect}>")
+        set_response(response, :accepted,
+                     "ignore disabled repository: " +
+                     "<#{owner_name.inspect}>:<#{repository_name.inspect}>")
         return
       end
 
