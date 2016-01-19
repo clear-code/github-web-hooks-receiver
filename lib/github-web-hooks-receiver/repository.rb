@@ -46,7 +46,7 @@ module GitHubWebHooksReceiver
       lock("#{mirror_path}.lock") do
         begin
           if File.exist?(mirror_path)
-            git("--git-dir", mirror_path, "fetch", "--quiet")
+            git("--git-dir", mirror_path, "fetch", "--quiet", "--prune")
           else
             git("clone", "--quiet",
                 "--mirror", @payload.repository_url,
