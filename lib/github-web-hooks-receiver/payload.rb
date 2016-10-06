@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2010-2016  Kouhei Sutou <kou@clear-code.com>
 # Copyright (C) 2015  Kenji Okimoto <okimoto@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ module GitHubWebHooksReceiver
     end
 
     def gitlab?
-      not self["user_name"].nil?
+      self["user_name"] or self["object_kind"]
     end
 
     def gitlab_wiki?

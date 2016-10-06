@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2015  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2010-2016  Kouhei Sutou <kou@clear-code.com>
 # Copyright (C) 2015  Kenji Okimoto <okimoto@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -74,8 +74,14 @@ module GitHubWebHooksReceiver
         "--max-size", "1M"
       ]
       if @payload.gitlab?
-        add_option(options, "--repository-browser", "gitlab")
-        gitlab_project_uri = @payload["repository"]["homepage"]
+        if @payload.gitlab_wiki?
+          # TODO: add_option(options, "--repository-browser", "gitlab-wiki")
+          add_option(options, "--repository-browser", "gitlab")
+          gitlab_project_uri = @payload["project"]["homepage"]
+        else
+          add_option(options, "--repository-browser", "gitlab")
+          gitlab_project_uri = @payload["repository"]["homepage"]
+        end
         add_option(options, "--gitlab-project-uri", gitlab_project_uri)
       else
         if @payload.github_gollum?
@@ -141,7 +147,7 @@ module GitHubWebHooksReceiver
 
     def mirror_path
       components = [mirrors_directory, @domain, @owner_name]
-      if @payload.github_gollum?
+      if @payload.github_gollum? or @payload.gitlab_wiki?
         components << "#{@name}.wiki"
       else
         components << @name
