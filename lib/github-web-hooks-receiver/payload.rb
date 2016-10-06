@@ -32,7 +32,9 @@ module GitHubWebHooksReceiver
     end
 
     def repository_url
-      if gitlab?
+      if gitlab_wiki?
+        self["wiki.git_ssh_url"]
+      elsif gitlab?
         self["repository.url"]
       elsif github_gollum?
         self["repository.clone_url"].gsub(/(\.git)\z/, ".wiki\\1")
@@ -45,12 +47,20 @@ module GitHubWebHooksReceiver
       not self["user_name"].nil?
     end
 
+    def gitlab_wiki?
+      event_name == "Wiki Page Hook"
+    end
+
     def github_gollum?
       event_name == "gollum"
     end
 
     def event_name
-      @metadata["x-github-event"]
+      if gitlab?
+        @metadata["x-gitlab-event"]
+      else
+        @metadata["x-github-event"]
+      end
     end
   end
 end

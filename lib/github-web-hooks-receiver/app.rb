@@ -28,6 +28,7 @@ module GitHubWebHooksReceiver
     def process_payload(request, response, raw_payload)
       metadata = {
         "x-github-event" => github_event(request),
+        "x-gitlab-event" => gitlab_event(request),
       }
       payload = Payload.new(raw_payload, metadata)
       case payload.event_name
@@ -37,6 +38,8 @@ module GitHubWebHooksReceiver
         process_push_payload(request, response, payload)
       when "gollum"
         process_gollum_payload(request, response, payload)
+      when "Wiki Page Hook"
+        process_gitlab_wiki_payload(request, response, payload)
       else
         set_response(response,
                      :bad_request,
@@ -46,6 +49,10 @@ module GitHubWebHooksReceiver
 
     def github_event(request)
       request.env["HTTP_X_GITHUB_EVENT"]
+    end
+
+    def gitlab_event(request)
+      request.env["HTTP_X_GITLAB_EVENT"]
     end
 
     def process_push_payload(request, response, payload)
@@ -60,6 +67,14 @@ module GitHubWebHooksReceiver
       repository = process_payload_repository(request, response, payload)
       return if repository.nil?
       change = process_gollum_parameters(request, response, payload)
+      return if change.nil?
+      repository.process(*change)
+    end
+
+    def process_gitlab_wiki_payload(request, response, payload)
+      repository = process_gitlab_wiki_repository(request, response, payload)
+      return if repository.nil?
+      change = process_gitlab_wiki_parameters(request, response, payload)
       return if change.nil?
       repository.process(*change)
     end
@@ -115,6 +130,64 @@ module GitHubWebHooksReceiver
       repository
     end
 
+    def process_gitlab_wiki_repository(request, response, payload)
+      wiki = payload["wiki"]
+      if wiki.nil?
+        set_response(response, :bad_request,
+                     "Wiki information is missing")
+        return
+      end
+
+      unless wiki.is_a?(Hash)
+        set_response(response, :bad_request,
+                     "invalid Wiki information format: " +
+                     "<#{wiki.inspect}>")
+        return
+      end
+
+      repository_uri = wiki["git_ssh_url"]
+      domain = extract_domain(repository_uri)
+      if domain.nil?
+        set_response(response, :bad_request,
+                     "invalid repository URI: <#{wiki.inspect}>")
+        return
+      end
+
+      project = payload["project"]
+      if wiki.nil?
+        set_response(response, :bad_request,
+                     "Project information is missing")
+        return
+      end
+
+      repository_name = project["name"]
+      if repository_name.nil?
+        set_response(response, :bad_request,
+                     "repository name is missing: <#{project.inspect}>")
+        return
+      end
+
+      owner_name = extract_owner_name(repository_uri, payload)
+      if owner_name.nil?
+        set_response(response, :bad_request,
+                     "repository owner or owner name is missing: " +
+                     "<#{project.inspect}>")
+        return
+      end
+
+      options = repository_options(domain, owner_name, repository_name)
+      repository = repository_class.new(domain, owner_name, repository_name,
+                                        payload, options)
+      unless repository.enabled?
+        set_response(response, :accepted,
+                     "ignore disabled repository: " +
+                     "<#{owner_name.inspect}>:<#{repository_name.inspect}>")
+        return
+      end
+
+      repository
+    end
+
     def extract_domain(repository_uri)
       case repository_uri
       when /\Agit@/
@@ -128,7 +201,6 @@ module GitHubWebHooksReceiver
 
     def extract_owner_name(repository_uri, payload)
       owner_name = nil
-      repository = payload["repository"]
       if payload.gitlab?
         case repository_uri
         when /\Agit@/
@@ -139,7 +211,7 @@ module GitHubWebHooksReceiver
           return
         end
       else
-        owner = repository["owner"]
+        owner = payload["repository.owner"]
         return if owner.nil?
 
         owner_name = owner["name"] || owner["login"]
@@ -198,6 +270,13 @@ module GitHubWebHooksReceiver
         after = revisions.last
       end
 
+      reference = "refs/heads/master"
+      [before, after, reference]
+    end
+
+    def process_gitlab_wiki_parameters(request, response, payload)
+      before = "HEAD~"
+      after = "HEAD"
       reference = "refs/heads/master"
       [before, after, reference]
     end
