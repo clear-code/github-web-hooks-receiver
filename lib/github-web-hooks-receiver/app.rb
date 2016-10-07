@@ -282,6 +282,15 @@ module GitHubWebHooksReceiver
     end
 
     def set_response(response, status_keyword, message)
+      if File.directory?("log")
+        begin
+          require "pp"
+          File.open("log/response.log", "w") do |log|
+            PP.pp([response, status_keyword, message], log)
+          end
+        rescue SystemCallError
+        end
+      end
       response.status = status(status_keyword)
       response["Content-Type"] = "text/plain"
       response.write(message)
