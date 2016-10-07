@@ -286,7 +286,7 @@ module GitHubWebHooksReceiver
         begin
           require "pp"
           File.open("log/response.log", "w") do |log|
-            PP.pp([response, status_keyword, message], log)
+            PP.pp([status_keyword, message], log)
           end
         rescue SystemCallError
         end
