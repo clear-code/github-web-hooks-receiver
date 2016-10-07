@@ -38,7 +38,7 @@ module GitHubWebHooksReceiver
         process_push_payload(request, response, payload)
       when "gollum"
         process_gollum_payload(request, response, payload)
-      when "wiki"
+      when "wiki_page"
         process_gitlab_wiki_payload(request, response, payload)
       else
         set_response(response,
