@@ -75,8 +75,7 @@ module GitHubWebHooksReceiver
       ]
       if @payload.gitlab?
         if @payload.gitlab_wiki?
-          # TODO: add_option(options, "--repository-browser", "gitlab-wiki")
-          add_option(options, "--repository-browser", "gitlab")
+          add_option(options, "--repository-browser", "gitlab-wiki")
           gitlab_project_uri = @payload["project"]["homepage"]
         else
           add_option(options, "--repository-browser", "gitlab")
