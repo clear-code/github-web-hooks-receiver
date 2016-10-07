@@ -48,7 +48,7 @@ module GitHubWebHooksReceiver
     end
 
     def gitlab_wiki?
-      event_name == "wiki"
+      event_name == "wiki_page"
     end
 
     def github_gollum?
