@@ -34,11 +34,11 @@ module GitHubWebHooksReceiver
       case payload.event_name
       when "ping"
         # Do nothing
-      when "push", nil # nil is for GitLab
+      when "push"
         process_push_payload(request, response, payload)
       when "gollum"
         process_gollum_payload(request, response, payload)
-      when "Wiki Page Hook"
+      when "wiki"
         process_gitlab_wiki_payload(request, response, payload)
       else
         set_response(response,

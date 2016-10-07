@@ -44,11 +44,11 @@ module GitHubWebHooksReceiver
     end
 
     def gitlab?
-      self["user_name"] or self["object_kind"]
+      not self["object_kind"].nil?
     end
 
     def gitlab_wiki?
-      event_name == "Wiki Page Hook"
+      event_name == "wiki"
     end
 
     def github_gollum?
@@ -57,7 +57,7 @@ module GitHubWebHooksReceiver
 
     def event_name
       if gitlab?
-        @metadata["x-gitlab-event"]
+        self["object_kind"]
       else
         @metadata["x-github-event"]
       end
