@@ -21,8 +21,9 @@ module GitHubWebHooksReceiverTestUtils
   include Capybara::DSL
 
   private
-  def assert_response(code)
-    assert_equal(resolve_status(code), resolve_status(status_code))
+  def assert_response(code, message)
+    assert_equal([resolve_status(code), message],
+                 [resolve_status(status_code), page.body])
   end
 
   def resolve_status(code_or_message)

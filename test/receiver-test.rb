@@ -48,7 +48,7 @@ class ReceiverTest < Test::Unit::TestCase
 
   def test_get
     visit "/"
-    assert_response("Method Not Allowed")
+    assert_response("Method Not Allowed", "must POST")
   end
 
   def test_post_ping
@@ -60,27 +60,25 @@ class ReceiverTest < Test::Unit::TestCase
       "HTTP_X_GITHUB_EVENT" => "ping",
     }
     post_payload(payload, env)
-    assert_response("OK")
+    assert_response("OK", "")
     assert_equal("", body)
   end
 
   def test_post_without_parameters
     page.driver.post("/")
-    assert_response("Bad Request")
-    assert_equal("payload is missing", body)
+    assert_response("Bad Request", "payload is missing")
   end
 
   def test_post_with_empty_payload
     page.driver.post("/", :payload => "")
-    assert_response("Bad Request")
     error_message = nil
     begin
       JSON.parse("")
     rescue
       error_message = $!.message
     end
-    assert_equal("invalid JSON format: <#{error_message}>",
-                 body)
+    assert_response("Bad Request",
+                    "invalid JSON format: <#{error_message}>")
   end
 
   class GitHubTest < self
@@ -102,10 +100,9 @@ class ReceiverTest < Test::Unit::TestCase
                        :name => owner_name,
                      },
                    })
-      assert_response("Accepted")
-      assert_equal("ignore disabled repository: " +
-                   "<#{owner_name.inspect}>:<#{repository_name.inspect}>",
-                   body)
+      assert_response("Accepted",
+                      "ignore disabled repository: " +
+                        "<#{owner_name.inspect}>:<#{repository_name.inspect}>")
     end
 
     def test_post_without_owner
@@ -117,9 +114,9 @@ class ReceiverTest < Test::Unit::TestCase
         "repository" => repository,
       }
       post_payload(payload)
-      assert_response("Bad Request")
-      assert_equal("repository owner or owner name is missing: <#{repository.inspect}>",
-                   body)
+      assert_response("Bad Request",
+                      "repository owner or owner name is missing: " +
+                        "<#{repository.inspect}>")
     end
 
     def test_post_without_owner_name
@@ -132,9 +129,9 @@ class ReceiverTest < Test::Unit::TestCase
         "repository" => repository,
       }
       post_payload(payload)
-      assert_response("Bad Request")
-      assert_equal("repository owner or owner name is missing: <#{repository.inspect}>",
-                   body)
+      assert_response("Bad Request",
+                      "repository owner or owner name is missing: " +
+                        "<#{repository.inspect}>")
     end
 
     def test_post_without_before
@@ -148,9 +145,7 @@ class ReceiverTest < Test::Unit::TestCase
         }
       }
       post_payload(payload)
-      assert_response("Bad Request")
-      assert_equal("before commit ID is missing",
-                   body)
+      assert_response("Bad Request", "before commit ID is missing")
     end
 
     def test_post_without_after
@@ -165,9 +160,7 @@ class ReceiverTest < Test::Unit::TestCase
         },
       }
       post_payload(payload)
-      assert_response("Bad Request")
-      assert_equal("after commit ID is missing",
-                   body)
+      assert_response("Bad Request", "after commit ID is missing")
     end
 
     def test_post_without_reference
@@ -183,9 +176,7 @@ class ReceiverTest < Test::Unit::TestCase
         },
       }
       post_payload(payload)
-      assert_response("Bad Request")
-      assert_equal("reference is missing",
-                   body)
+      assert_response("Bad Request", "reference is missing")
     end
 
     def test_post
@@ -204,7 +195,7 @@ class ReceiverTest < Test::Unit::TestCase
                    :before => before,
                    :after => after,
                    :ref => reference)
-      assert_response("OK")
+      assert_response("OK", "")
       assert_true(File.exist?(repository_mirror_path))
       result = YAML.load_file(File.join(@tmp_dir, "commit-email-result.yaml"))
       assert_equal([{
@@ -245,7 +236,7 @@ class ReceiverTest < Test::Unit::TestCase
                    :before => before,
                    :after => after,
                    :ref => reference)
-      assert_response("OK")
+      assert_response("OK", "")
       assert_true(File.exist?(repository_mirror_path))
       result = YAML.load_file(File.join(@tmp_dir, "commit-email-result.yaml"))
       assert_equal([{
@@ -295,7 +286,7 @@ class ReceiverTest < Test::Unit::TestCase
                    :before => before,
                    :after => after,
                    :ref => reference)
-      assert_response("OK")
+      assert_response("OK", "")
       assert_true(File.exist?(repository_mirror_path))
       result = YAML.load_file(File.join(@tmp_dir, "commit-email-result.yaml"))
       assert_equal([{
@@ -339,7 +330,7 @@ class ReceiverTest < Test::Unit::TestCase
         "HTTP_X_GITHUB_EVENT" => "gollum",
       }
       post_payload(payload, env)
-      assert_response("OK")
+      assert_response("OK", "")
       assert_true(File.exist?(repository_mirror_path))
       result = YAML.load_file(File.join(@tmp_dir, "commit-email-result.yaml"))
       assert_equal([

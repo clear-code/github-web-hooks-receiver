@@ -196,18 +196,23 @@ class MultiSiteReceiverTest < Test::Unit::TestCase
       expected_argv.push("--add-html") if add_html
       expected_argv.push("--error-to", error_to)
       expected_argv.push(*to)
-      post_payload(:repository => {
-                     :homepage => gitlab_project_uri,
-                     :url => repository_uri,
-                     :name => repository_name,
-                     :owner => {
-                       :name => owner_name,
-                     }
+      post_payload({
+                     :repository => {
+                       :homepage => gitlab_project_uri,
+                       :url => repository_uri,
+                       :name => repository_name,
+                       :owner => {
+                         :name => owner_name,
+                       }
+                     },
+                     :before => before,
+                     :after => after,
+                     :ref => reference,
                    },
-                   :before => before,
-                   :after => after,
-                   :ref => reference)
-      assert_response("OK")
+                   {
+                     "HTTP_X_GITHUB_EVENT" => "push",
+                   })
+      assert_response("OK", "")
       assert_true(File.exist?(repository_mirror_path), repository_mirror_path)
       result = YAML.load_file(File.join(@tmp_dir, "commit-email-result.yaml"))
       assert_equal([{
@@ -313,7 +318,8 @@ class MultiSiteReceiverTest < Test::Unit::TestCase
       expected_argv.push("--add-html") if add_html
       expected_argv.push("--error-to", error_to)
       expected_argv.push(to)
-      post_payload(:repository => {
+      post_payload(:object_kind => "push",
+                   :repository => {
                      :homepage => gitlab_project_uri,
                      :url => repository_uri,
                      :name => repository_name,
@@ -322,7 +328,7 @@ class MultiSiteReceiverTest < Test::Unit::TestCase
                    :after => after,
                    :ref => reference,
                    :user_name => "jojo")
-      assert_response("OK")
+      assert_response("OK", "")
       assert_true(File.exist?(repository_mirror_path), repository_mirror_path)
       result = YAML.load_file(File.join(@tmp_dir, "commit-email-result.yaml"))
       assert_equal([{
@@ -335,8 +341,10 @@ class MultiSiteReceiverTest < Test::Unit::TestCase
 
   private
 
-  def post_payload(payload)
-    page.driver.post("/", :payload => JSON.generate(payload))
+  def post_payload(payload, env={})
+    page.driver.post("/",
+                     {:payload => JSON.generate(payload)},
+                     env)
   end
 
   def mirror_path(*components)
