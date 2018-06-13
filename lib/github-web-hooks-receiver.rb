@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2013  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2010-2018  Kouhei Sutou <kou@clear-code.com>
 # Copyright (C) 2015  Kenji Okimoto <okimoto@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "fileutils"
-require "webrick/httpstatus"
+require "json"
 require "shellwords"
 require "uri"
-
-require "json"
-
+require "webrick/httpstatus"
 
 require "github-web-hooks-receiver/app"
 require "github-web-hooks-receiver/version"
