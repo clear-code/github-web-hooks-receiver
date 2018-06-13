@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2014-2015  Kenji Okimoto <okimoto@clear-code.com>
+# Copyright (C) 2018  Kouhei Sutou <kou@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,20 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "github-web-hooks-receiver/job-queue"
-
 module GitHubWebHooksReceiver
   class Base
     def initialize(options={})
-      @job_queue = JobQueue.new
       @options = symbolize_options(options)
     end
 
     def call(env)
       request = Rack::Request.new(env)
       response = Rack::Response.new
-      process(request, response)
-      response.to_a
+      process(request, response) or response.finish
     end
 
     private
@@ -66,11 +62,11 @@ module GitHubWebHooksReceiver
     def process(request, response)
       unless request.post?
         set_error_response(response, :method_not_allowed, "must POST")
-        return
+        return nil
       end
 
       payload = parse_payload(request, response)
-      return if payload.nil?
+      return nil if payload.nil?
       process_payload(request, response, payload)
     end
 
@@ -82,7 +78,7 @@ module GitHubWebHooksReceiver
       end
       if payload.nil?
         set_error_response(response, :bad_request, "payload is missing")
-        return
+        return nil
       end
 
       begin
@@ -90,8 +86,8 @@ module GitHubWebHooksReceiver
       rescue JSON::ParserError
         set_error_response(response, :bad_request,
                            "invalid JSON format: <#{$!.message}>")
-        nil
       end
+      nil
     end
 
     def process_payload(request, response, payload)

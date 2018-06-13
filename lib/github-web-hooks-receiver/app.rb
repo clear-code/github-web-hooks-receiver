@@ -44,6 +44,7 @@ module GitHubWebHooksReceiver
         set_response(response,
                      :bad_request,
                      "Unsupported event: <#{payload.event_name}>")
+        nil
       end
     end
 
@@ -60,7 +61,7 @@ module GitHubWebHooksReceiver
       return if repository.nil?
       change = process_push_parameters(request, response, payload)
       return if change.nil?
-      @job_queue.push do
+      response.finish do
         repository.process(*change)
       end
     end
@@ -70,7 +71,7 @@ module GitHubWebHooksReceiver
       return if repository.nil?
       change = process_gollum_parameters(request, response, payload)
       return if change.nil?
-      @job_queue.push do
+      response.finish do
         repository.process(*change)
       end
     end
@@ -80,7 +81,7 @@ module GitHubWebHooksReceiver
       return if repository.nil?
       change = process_gitlab_wiki_parameters(request, response, payload)
       return if change.nil?
-      @job_queue.push do
+      response.finish do
         repository.process(*change)
       end
     end
