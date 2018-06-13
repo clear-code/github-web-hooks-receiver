@@ -21,8 +21,6 @@ require "uri"
 
 require "json"
 
-module GitHubWebHooksReceiver
-end
 
 require "github-web-hooks-receiver/app"
 require "github-web-hooks-receiver/version"
