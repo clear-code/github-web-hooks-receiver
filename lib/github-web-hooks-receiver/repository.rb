@@ -116,6 +116,7 @@ module GitHubWebHooksReceiver
       output = capture_output do
         IO.popen(command_line, "w") do |io|
           io.puts(change)
+          print(io.read)
         end
         status = $?
       end
