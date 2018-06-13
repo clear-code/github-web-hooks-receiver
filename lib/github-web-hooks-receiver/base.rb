@@ -14,9 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require "github-web-hooks-receiver/job-queue"
+
 module GitHubWebHooksReceiver
   class Base
     def initialize(options={})
+      @job_queue = JobQueue.new
       @options = symbolize_options(options)
     end
 

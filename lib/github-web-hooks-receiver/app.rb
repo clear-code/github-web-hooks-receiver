@@ -60,7 +60,9 @@ module GitHubWebHooksReceiver
       return if repository.nil?
       change = process_push_parameters(request, response, payload)
       return if change.nil?
-      repository.process(*change)
+      @job_queue.push do
+        repository.process(*change)
+      end
     end
 
     def process_gollum_payload(request, response, payload)
@@ -68,7 +70,9 @@ module GitHubWebHooksReceiver
       return if repository.nil?
       change = process_gollum_parameters(request, response, payload)
       return if change.nil?
-      repository.process(*change)
+      @job_queue.push do
+        repository.process(*change)
+      end
     end
 
     def process_gitlab_wiki_payload(request, response, payload)
@@ -76,7 +80,9 @@ module GitHubWebHooksReceiver
       return if repository.nil?
       change = process_gitlab_wiki_parameters(request, response, payload)
       return if change.nil?
-      repository.process(*change)
+      @job_queue.push do
+        repository.process(*change)
+      end
     end
 
     def process_payload_repository(request, response, payload)
