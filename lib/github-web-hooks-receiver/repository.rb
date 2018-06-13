@@ -114,8 +114,9 @@ module GitHubWebHooksReceiver
       change = "#{before} #{after} #{reference}"
       status = nil
       output = capture_output do
-        IO.popen(command_line) do |io|
+        IO.popen(command_line, "r+") do |io|
           io.puts(change)
+          io.close_wirte
           print(io.read)
         end
         status = $?
