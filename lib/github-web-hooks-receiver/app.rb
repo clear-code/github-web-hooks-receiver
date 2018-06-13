@@ -62,7 +62,9 @@ module GitHubWebHooksReceiver
       change = process_push_parameters(request, response, payload)
       return if change.nil?
       response.finish do
-        repository.process(*change)
+        Thread.new do
+          repository.process(*change)
+        end
       end
     end
 
@@ -72,7 +74,9 @@ module GitHubWebHooksReceiver
       change = process_gollum_parameters(request, response, payload)
       return if change.nil?
       response.finish do
-        repository.process(*change)
+        Thread.new do
+          repository.process(*change)
+        end
       end
     end
 
@@ -82,7 +86,9 @@ module GitHubWebHooksReceiver
       change = process_gitlab_wiki_parameters(request, response, payload)
       return if change.nil?
       response.finish do
-        repository.process(*change)
+        Thread.new do
+          repository.process(*change)
+        end
       end
     end
 
