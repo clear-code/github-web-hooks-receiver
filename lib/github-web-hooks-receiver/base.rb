@@ -86,8 +86,8 @@ module GitHubWebHooksReceiver
       rescue JSON::ParserError
         set_error_response(response, :bad_request,
                            "invalid JSON format: <#{$!.message}>")
+        nil
       end
-      nil
     end
 
     def process_payload(request, response, payload)
