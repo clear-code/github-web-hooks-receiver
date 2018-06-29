@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2016  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2010-2018  Kouhei Sutou <kou@clear-code.com>
 # Copyright (C) 2015  Kenji Okimoto <okimoto@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -31,15 +31,27 @@ module GitHubWebHooksReceiver
       end
     end
 
-    def repository_url
+    def http_clone_url
       if gitlab_wiki?
-        self["wiki.git_ssh_url"]
+        self["wiki.git_http_url"]
       elsif gitlab?
-        self["repository.url"]
+        self["repository.git_http_url"]
       elsif github_gollum?
         self["repository.clone_url"].gsub(/(\.git)\z/, ".wiki\\1")
       else
-        self["repository.clone_url"] || "#{self['repository.url']}.git"
+        self["repository.clone_url"]
+      end
+    end
+
+    def ssh_clone_url
+      if gitlab_wiki?
+        self["wiki.git_ssh_url"]
+      elsif gitlab?
+        self["repository.git_ssh_url"]
+      elsif github_gollum?
+        self["repository.ssh_url"].gsub(/(\.git)\z/, ".wiki\\1")
+      else
+        self["repository.ssh_url"]
       end
     end
 

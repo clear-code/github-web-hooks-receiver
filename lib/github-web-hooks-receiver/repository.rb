@@ -1,4 +1,4 @@
-# Copyright (C) 2010-2016  Kouhei Sutou <kou@clear-code.com>
+# Copyright (C) 2010-2018  Kouhei Sutou <kou@clear-code.com>
 # Copyright (C) 2015  Kenji Okimoto <okimoto@clear-code.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,7 @@ module GitHubWebHooksReceiver
       @options = options
       @to = @options[:to]
       @max_n_retries = (@options[:n_retries] || 3).to_i
+      @use_ssh = @options[:use_ssh]
       raise Error.new("mail receive address is missing: <#{@name}>") if @to.nil?
     end
 
@@ -48,8 +49,13 @@ module GitHubWebHooksReceiver
           if File.exist?(mirror_path)
             git("--git-dir", mirror_path, "fetch", "--quiet", "--prune")
           else
+            if @use_ssh
+              clone_url = @payload.ssh_clone_url
+            else
+              clone_url = @payload.http_clone_url
+            end
             git("clone", "--quiet",
-                "--mirror", @payload.repository_url,
+                "--mirror", clone_url,
                 mirror_path)
           end
         rescue Error
