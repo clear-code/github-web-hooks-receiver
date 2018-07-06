@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/clear-code/github-web-hooks-receiver.svg?branch=master)](https://travis-ci.org/clear-code/github-web-hooks-receiver)
 
-This project has been moved to https://gitlab.com/clear-code/github-webhooks-receiver .
+This project has been moved to https://gitlab.com/clear-code/github-web-hooks-receiver .
 
 # GitHub Web hooks receiver
 
